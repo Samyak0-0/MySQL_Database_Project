@@ -1,0 +1,81 @@
+
+Relational Schema Of Hospital Management System;
+
+
+PATIENT:
+  patient_id (PK) - INT AUTO_INCREMENT
+  name - VARCHAR(100) NOT NULL
+  age - INT
+  gender - ENUM('M', 'F')
+  phone - VARCHAR(15)
+  address - TEXT
+  room_id (FK) - INT (references ROOM.room_id)
+
+
+DOCTOR:
+  doctor_id (PK) - INT AUTO_INCREMENT
+  name - VARCHAR(100) NOT NULL
+  specialization - VARCHAR(100)
+  phone - VARCHAR(15)
+  email - VARCHAR(100)
+  dept_id (FK) - INT (references DEPARTMENT.dept_id)
+
+
+DEPARTMENT:
+  dept_id (PK) - INT AUTO_INCREMENT
+  dept_name - VARCHAR(100) NOT NULL UNIQUE
+  location - VARCHAR(100)
+  head_doctor_id (FK) - INT (references DOCTOR.doctor_id)
+
+
+APPOINTMENT:
+  appt_id (PK) - INT AUTO_INCREMENT
+  patient_id (FK) - INT NOT NULL (references PATIENT.patient_id)
+  doctor_id (FK) - INT NOT NULL (references DOCTOR.doctor_id)
+  appointment_date - DATE NOT NULL
+  appointment_time - TIME NOT NULL
+  status - ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled'
+  notes - TEXT
+
+
+TREATMENT:
+  treatment_id (PK) - INT AUTO_INCREMENT
+  appt_id (FK) - INT (references APPOINTMENT.appt_id)
+  treatment_description - TEXT
+  cost - DECIMAL(10,2)
+  treatment_date - DATETIME DEFAULT CURRENT_TIMESTAMP
+
+
+ROOM:
+  room_id (PK) - INT AUTO_INCREMENT
+  room_number - VARCHAR(10) NOT NULL UNIQUE
+  room_type - ENUM('General', 'ICU', 'Emergency', 'Surgery') NOT NULL
+  status - ENUM('Available', 'Occupied', 'Maintenance') DEFAULT 'Available'
+  floor_number - INT
+
+
+MEDICINE:
+  medicine_id (PK) - INT AUTO_INCREMENT
+  medicine_name - VARCHAR(100) NOT NULL
+  manufacturer - VARCHAR(100)
+  dosage - VARCHAR(50)
+  unit_price - DECIMAL(8,2)
+  stock_quantity - INT DEFAULT 0
+
+
+PRESCRIPTION (M:M relationship between TREATMENT and MEDICINE):
+  prescription_id (PK) - INT AUTO_INCREMENT
+  treatment_id (FK) - INT (references TREATMENT.treatment_id)
+  medicine_id (FK) - INT (references MEDICINE.medicine_id)
+  quantity - INT NOT NULL
+  dosage_instructions - TEXT
+  duration_days - INT
+
+
+Relationships Summary:
+  PATIENT ←→ ROOM (1:1)
+  PATIENT → APPOINTMENT (1:M)
+  DOCTOR → APPOINTMENT (1:M)
+  DOCTOR → DEPARTMENT (M:1)
+  APPOINTMENT → TREATMENT (1:M)
+  TREATMENT ←→ MEDICINE (M:M via PRESCRIPTION)
