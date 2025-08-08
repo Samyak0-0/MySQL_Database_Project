@@ -1,33 +1,34 @@
--- Demonstrate explicit locking
--- Shared Lock (FOR SHARE)
+-- Example 1: Basic Transaction with Table-Level Lock
 START TRANSACTION;
-SELECT * FROM accounts WHERE account_id = 1 FOR SHARE;
--- Other transactions can read but not modify this row
--- COMMIT or ROLLBACK to release lock
-
--- Exclusive Lock (FOR UPDATE)
-START TRANSACTION;
-SELECT * FROM accounts WHERE account_id = 1 FOR UPDATE;
--- Other transactions cannot read or modify this row
--- COMMIT or ROLLBACK to release lock
-
--- Table-level locking
-LOCK TABLES accounts WRITE;
--- Only this session can read/write the accounts table
-UPDATE accounts SET balance = balance * 1.05; -- 5% interest
+LOCK TABLES employees WRITE;
+UPDATE employees SET salary = salary * 1.1 WHERE department_id = 10;
+COMMIT;
 UNLOCK TABLES;
 
--- Demonstrate deadlock prevention with ordered locking
--- Transaction 1:
+-- Example 2: Row-Level Locking with SELECT ... FOR UPDATE
 START TRANSACTION;
-SELECT * FROM accounts WHERE account_id = 1 FOR UPDATE; -- Lock account 1 first
-SELECT * FROM accounts WHERE account_id = 2 FOR UPDATE; -- Then lock account 2
--- Perform operations
+SELECT * FROM orders WHERE order_id = 1001 FOR UPDATE;
+UPDATE orders SET status = 'processed' WHERE order_id = 1001;
 COMMIT;
 
--- Transaction 2 should follow same order to prevent deadlock:
+-- Example 3: Handling Concurrent Updates with Transaction Isolation
+SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 START TRANSACTION;
-SELECT * FROM accounts WHERE account_id = 1 FOR UPDATE; -- Lock account 1 first
-SELECT * FROM accounts WHERE account_id = 2 FOR UPDATE; -- Then lock account 2
--- Perform operations  
+SELECT balance FROM accounts WHERE account_id = 500;
+UPDATE accounts SET balance = balance - 100 WHERE account_id = 500;
 COMMIT;
+
+-- Example 4: Deadlock Prevention with Ordered Locking
+START TRANSACTION;
+LOCK TABLES accounts WRITE, transactions WRITE;
+UPDATE accounts SET balance = balance - 50 WHERE account_id = 200;
+INSERT INTO transactions (account_id, amount, type) VALUES (200, -50, 'WITHDRAWAL');
+COMMIT;
+UNLOCK TABLES;
+
+-- Example 5: Read Lock for Consistent Reads
+START TRANSACTION;
+LOCK TABLES inventory READ;
+SELECT quantity FROM inventory WHERE product_id = 300;
+COMMIT;
+UNLOCK TABLES;

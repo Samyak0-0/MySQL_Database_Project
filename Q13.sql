@@ -1,43 +1,44 @@
--- First, let's create a simple banking scenario
+-- Create a banking scenario
 CREATE TABLE accounts (
     account_id INT PRIMARY KEY,
     account_holder VARCHAR(100),
     balance DECIMAL(10,2)
 );
 
+-- Insert initial data with different names and balances
 INSERT INTO accounts VALUES
-(1, 'Alice', 1000.00),
-(2, 'Bob', 500.00);
+(1, 'Cristianoah', 1200.00),
+(2, 'Messy', 750.00);
 
 -- Show initial state
 SELECT * FROM accounts;
 
--- Now we'll simulate two concurrent transactions that can cause inconsistency
--- Transaction 1: Transfer $100 from Alice to Bob
--- Transaction 2: Transfer $50 from Bob to Alice
+-- Simulate two concurrent transactions to demonstrate potential inconsistency
+-- Transaction 1: Transfer $150 from Cristianoah to Messy
+-- Transaction 2: Transfer $80 from Messy to Cristianoah
 
--- Without proper concurrency control, this could cause problems
--- Let's demonstrate with two separate sessions:
+-- Without proper concurrency control, this could lead to issues
+-- Demonstrate with two separate sessions:
 
 -- SESSION 1 (run in first MySQL connection):
 START TRANSACTION;
-SELECT balance FROM accounts WHERE account_id = 1; -- Alice has $1000
-SELECT balance FROM accounts WHERE account_id = 2; -- Bob has $500
+SELECT balance FROM accounts WHERE account_id = 1; -- Cristianoah has $1200
+SELECT balance FROM accounts WHERE account_id = 2; -- Messy has $750
 -- (simulate delay here)
-UPDATE accounts SET balance = balance - 100 WHERE account_id = 1; -- Alice loses $100
+UPDATE accounts SET balance = balance - 150 WHERE account_id = 1; -- Cristianoah loses $150
 -- DON'T COMMIT YET
 
 -- SESSION 2 (run in second MySQL connection):
 START TRANSACTION;
-SELECT balance FROM accounts WHERE account_id = 1; -- Still sees Alice with $1000
-SELECT balance FROM accounts WHERE account_id = 2; -- Still sees Bob with $500
-UPDATE accounts SET balance = balance - 50 WHERE account_id = 2;  -- Bob loses $50
-UPDATE accounts SET balance = balance + 50 WHERE account_id = 1;  -- Alice gains $50
+SELECT balance FROM accounts WHERE account_id = 1; -- Still sees Cristianoah with $1200
+SELECT balance FROM accounts WHERE account_id = 2; -- Still sees Messy with $750
+UPDATE accounts SET balance = balance - 80 WHERE account_id = 2;  -- Messy loses $80
+UPDATE accounts SET balance = balance + 80 WHERE account_id = 1;  -- Cristianoah gains $80
 COMMIT;
 
 -- Back to SESSION 1:
-UPDATE accounts SET balance = balance + 100 WHERE account_id = 2; -- Bob gains $100
+UPDATE accounts SET balance = balance + 150 WHERE account_id = 2; -- Messy gains $150
 COMMIT;
 
--- Check final state - there might be inconsistency!
+-- Check final state - potential inconsistency!
 SELECT * FROM accounts;

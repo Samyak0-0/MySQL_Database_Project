@@ -28,32 +28,32 @@ CREATE TABLE enrollment (
     FOREIGN KEY (course_id) REFERENCES course(course_id)
 );
 
--- Insert sample data
+-- Insert modified sample data
 INSERT INTO student VALUES
-('S001', 'John Smith'),
-('S002', 'Mary Jones'),
-('S003', 'Bob Wilson'),
-('S004', 'Alice Brown');
+('S101', 'Emma Davis'),
+('S102', 'Liam Johnson'),
+('S103', 'Olivia Taylor'),
+('S104', 'Noah Martinez');
 
 INSERT INTO instructor VALUES
-('I001', 'Dr. Brown'),
-('I002', 'Dr. White'),
-('I003', 'Dr. Green'),
-('I004', 'Dr. Black');
+('I101', 'Prof. Adams'),
+('I102', 'Prof. Clark'),
+('I103', 'Prof. Lewis'),
+('I104', 'Prof. Walker');
 
 INSERT INTO course VALUES
-('CS101', 'Intro to Computer Science', 3, 'Computer Science', 'I001'),
-('CS102', 'Data Structures', 4, 'Computer Science', 'I002'),
-('MATH201', 'Calculus I', 4, 'Mathematics', 'I003'),
-('PHYS101', 'Physics I', 3, 'Physics', 'I004');
+('CS201', 'Programming Fundamentals', 3, 'Computer Science', 'I101'),
+('CS202', 'Algorithms', 4, 'Computer Science', 'I102'),
+('MATH301', 'Linear Algebra', 4, 'Mathematics', 'I103'),
+('CHEM101', 'General Chemistry', 3, 'Chemistry', 'I104');
 
 INSERT INTO enrollment VALUES
-('S001', 'CS101', 'A', '2024-01-15'),
-('S001', 'CS102', 'B+', '2024-01-15'),
-('S002', 'CS101', 'A-', '2024-01-15'),
-('S003', 'MATH201', 'B', '2024-01-15'),
-('S003', 'PHYS101', 'A', '2024-01-15'),
-('S004', 'CS101', 'B+', '2024-01-15');
+('S101', 'CS201', 'A+', '2025-01-20'),
+('S101', 'CS202', 'B', '2025-01-20'),
+('S102', 'CS201', 'A', '2025-01-20'),
+('S103', 'MATH301', 'B+', '2025-01-20'),
+('S103', 'CHEM101', 'A-', '2025-01-20'),
+('S104', 'CS201', 'B', '2025-01-20');
 
 -- Query to reconstruct original data using JOINs
 SELECT s.student_id, s.student_name, c.course_id, c.course_name, 
